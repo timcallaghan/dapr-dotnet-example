@@ -1,0 +1,45 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.4"
+services:
+  apia:
+    build:
+      context: "/Users/spoida/git/github/timcallaghan/dapr-dotnet-example"
+      dockerfile: "ApiA/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net7.0/ApiA.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+      NUGET_PACKAGES: "/Users/spoida/.nuget/packages"
+      NUGET_FALLBACK_PACKAGES: "/Users/spoida/.nuget/packages"
+    image: "apia:dev"
+    ports: []
+    volumes:
+    - "/Users/spoida/.nuget/packages:/root/.nuget/fallbackpackages"
+    - "/Users/spoida/git/github/timcallaghan/dapr-dotnet-example/ApiA:/app:rw"
+    - "/Users/spoida/git/github/timcallaghan/dapr-dotnet-example:/src:rw"
+    working_dir: "/app"
+  apib:
+    build:
+      context: "/Users/spoida/git/github/timcallaghan/dapr-dotnet-example"
+      dockerfile: "ApiB/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net7.0/ApiB.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+      NUGET_PACKAGES: "/Users/spoida/.nuget/packages"
+      NUGET_FALLBACK_PACKAGES: "/Users/spoida/.nuget/packages"
+    image: "apib:dev"
+    ports: []
+    volumes:
+    - "/Users/spoida/.nuget/packages:/root/.nuget/fallbackpackages"
+    - "/Users/spoida/git/github/timcallaghan/dapr-dotnet-example/ApiB:/app:rw"
+    - "/Users/spoida/git/github/timcallaghan/dapr-dotnet-example:/src:rw"
+    working_dir: "/app"

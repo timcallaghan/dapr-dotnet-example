@@ -1,0 +1,86 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+version: '3.4'
+
+services:
+
+  dapr-placement:
+    image: "daprio/dapr:1.12.0"
+    command: [ "./placement", "-port", "50000" ]
+    ports:
+      - "50000:50000"
+    networks:
+      - dapr-demo-network
+
+  dapr-dashboard:
+    image: "daprio/dashboard:0.14.0"
+    command: [ "--docker-compose=true", 
+      "--components-path=/home/nonroot/components", 
+      "--config-path=/home/nonroot/configuration", 
+      "--docker-compose-path=/home/nonroot/docker-compose.yml" ]
+    ports:
+      - "50001:8080"
+    volumes:
+      - "./dockercompose/dapr/components/:/home/nonroot/components"
+      - "./dockercompose/dapr/config/:/home/nonroot/configuration"
+      - ./docker-compose.yml:/home/nonroot/docker-compose.yml
+    depends_on:
+      - apia-dapr
+      - apib-dapr
+    networks:
+      - dapr-demo-network
+
+  apia:
+    image: apia
+    build:
+      context: .
+      dockerfile: ApiA/Dockerfile
+    ports:
+      - 50002:80
+    networks:
+      - dapr-demo-network
+
+  apia-dapr:
+    image: "daprio/daprd:1.12.0"
+    command: [ "./daprd",
+               "-app-id", "ApiA",
+               "-app-port", "80",
+               "-placement-host-address", "dapr-placement:50000",
+               "-components-path", "/components",
+               "-config", "/configuration/config.yaml" ]
+    volumes:
+      - "./dockercompose/dapr/components/:/components"
+      - "./dockercompose/dapr/config/:/configuration"
+    depends_on:
+      - apia
+      - dapr-placement
+    network_mode: "service:apia"
+
+  apib:
+      image: apib
+      build:
+        context: .
+        dockerfile: ApiB/Dockerfile
+      ports:
+        - 50003:80
+      networks:
+        - dapr-demo-network
+
+  apib-dapr:
+    image: "daprio/daprd:1.12.0"
+    command: [ "./daprd",
+                "-app-id", "ApiB",
+                "-app-port", "80",
+                "-placement-host-address", "dapr-placement:50000",
+                "-components-path", "/components",
+                "-config", "/configuration/config.yaml" ]
+    volumes:
+      - "./dockercompose/dapr/components/:/components"
+      - "./dockercompose/dapr/config/:/configuration"
+    depends_on:
+      - apib
+      - dapr-placement
+    network_mode: "service:apib"
+
+networks:
+  dapr-demo-network:
